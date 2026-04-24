@@ -1,0 +1,111 @@
+/*
+ * Copyright (C) 2026 Hajime Segawa / 糸貫内科クリニック
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * ---
+ * Acknowledge: This code was developed with the assistance of Gemini 3 Pro (Google AI).
+ */
+
+#include <windows.h>
+#include "resource.h"
+
+// メインダイアログ
+IDD_MAIN DIALOGEX 0, 0, 240, 150
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Gemini AIでレセプトを点検するツール gemrecechk v1.2"
+FONT 9, "MS Shell Dlg"
+BEGIN
+    LTEXT           "診療年月(日):", IDC_STATIC, 25, 15, 40, 8
+    COMBOBOX        IDC_YEAR, 70, 13, 40, 100, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_MONTH, 115, 13, 30, 100, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_DAY, 150, 13, 30, 100, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "本日", IDC_BTN_TODAY, 185, 13, 25, 14
+    
+    PUSHBUTTON      "ORCAの受付リストを使用して患者一覧を所得", IDC_BTN_GET_ORCA, 20, 40, 200, 20
+    PUSHBUTTON      "レセ電ファイルを用いて患者一覧を所得（推奨）", IDC_BTN_GET_BY_UKE, 20, 75, 200, 20
+    PUSHBUTTON      "設定", IDC_BTN_CONFIG, 20, 110, 60, 14
+    
+    LTEXT           "Gemini は AI であり、間違えることがあります。", IDC_STATIC, 100, 130, 200, 8
+END
+
+// 進捗ダイアログ
+IDD_PROGRESS DIALOGEX 0, 0, 200, 70
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION
+CAPTION "処理中"
+FONT 9, "MS Shell Dlg"
+BEGIN
+    LTEXT           "データを取得しています...", IDC_ST_STATUS, 10, 10, 180, 8
+    CONTROL         "", IDC_PROG_BAR, "msctls_progress32", WS_BORDER, 10, 25, 180, 14
+    PUSHBUTTON      "中止", IDC_BTN_ABORT, 75, 50, 50, 14
+END
+
+// ビューワー（リサイズ可能）
+IDD_VIEWER DIALOGEX 0, 0, 500, 350
+STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "レセプトの表示と点検"
+FONT 10, "ＭＳ ゴシック"
+BEGIN
+    PUSHBUTTON      "前へ", IDC_BTN_PREV, 10, 5, 40, 14
+    PUSHBUTTON      "次へ", IDC_BTN_NEXT, 55, 5, 40, 14
+    EDITTEXT        IDC_EDIT_SEARCH, 110, 5, 50, 14, ES_AUTOHSCROLL
+    PUSHBUTTON      "検索", IDC_BTN_SEARCH, 165, 5, 30, 14
+    COMBOBOX        IDC_COMBO_INS, 210, 5, 60, 100, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "不備のみ表示", IDC_CHK_ONLY_ISSUE, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 280, 7, 70, 10
+    
+    EDITTEXT        IDC_EDIT_CONTENT, 10, 45, 480, 250, ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
+    
+    PUSHBUTTON      "この1件を点検", IDC_BTN_CHECK_ONE, 10, 325, 80, 14
+    PUSHBUTTON      "表示中の全件を点検", IDC_BTN_CHECK_ALL, 100, 325, 100, 14
+    PUSHBUTTON      "一覧印刷", IDC_BTN_PRINT_SUMMARY, 330, 325, 50, 14
+    PUSHBUTTON      "中止", IDC_BTN_ABORT, 450, 325, 40, 14
+END
+
+// 設定ダイアログ
+IDD_CONFIG DIALOGEX 0, 0, 300, 220
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "設定"
+FONT 9, "MS Shell Dlg"
+BEGIN
+    LTEXT           "WebORCA アドレス:", IDC_STATIC, 10, 10, 80, 8
+    EDITTEXT        IDC_ED_ORCA_ADDR, 95, 8, 195, 14, ES_AUTOHSCROLL
+    LTEXT           "WebORCA ユーザ名:", IDC_STATIC, 10, 28, 80, 8
+    EDITTEXT        IDC_ED_ORCA_USER, 95, 26, 100, 14, ES_AUTOHSCROLL
+    LTEXT           "WebORCA パスワード:", IDC_STATIC, 10, 46, 80, 8
+    EDITTEXT        IDC_ED_ORCA_PASS, 95, 44, 100, 14, ES_PASSWORD | ES_AUTOHSCROLL
+    LTEXT           "Gemini API キー:", IDC_STATIC, 10, 64, 80, 8
+    EDITTEXT        IDC_ED_GEMINI_KEY, 95, 62, 195, 14, ES_AUTOHSCROLL
+    LTEXT           "Gemini モデル:", IDC_STATIC, 10, 82, 80, 8
+    EDITTEXT        IDC_ED_GEMINI_MODEL, 95, 80, 100, 14, ES_AUTOHSCROLL
+    LTEXT           "分割送信件数:", IDC_STATIC, 10, 100, 80, 8
+    EDITTEXT        IDC_ED_SPLIT_CASE, 95, 98, 40, 14, ES_NUMBER
+    LTEXT           "システムプロンプト:", IDC_STATIC, 10, 118, 80, 8
+    EDITTEXT        IDC_ED_SYS_PROMPT, 10, 130, 280, 40, ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
+    CONTROL         "デバッグ出力 (debug.log)", IDC_CHK_DEBUG, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 10, 175, 150, 10
+    PUSHBUTTON      "ユーザプロンプト編集", IDC_BTN_EDIT_USERP, 170, 173, 120, 14
+    DEFPUSHBUTTON   "適用", IDOK, 190, 195, 45, 14
+    PUSHBUTTON      "キャンセル", IDCANCEL, 245, 195, 45, 14
+END
+
+// ライセンス同意ダイアログ
+IDD_LICENSE DIALOGEX 0, 0, 300, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ライセンスの同意"
+FONT 9, "MS Shell Dlg"
+BEGIN
+    LTEXT           "", IDC_LBL_LICENSE_TITLE, 10, 10, 280, 10
+    EDITTEXT        IDC_TXT_LICENSE_TEXT, 10, 25, 280, 145, ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL | WS_VSCROLL
+    PUSHBUTTON      "同意", IDC_BTN_AGREE, 10, 175, 50, 14
+    PUSHBUTTON      "キャンセル", IDC_BTN_DECLINE, 240, 175, 50, 14
+END
