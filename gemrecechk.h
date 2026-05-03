@@ -53,6 +53,7 @@ typedef struct Medication_Info {
     char Medication_Number[32];
     char Unit_Code_Name[32];
     char Medication_Point[32];
+    char Medication_Code[32];
     struct Medication_Info* next;
 } Medication_Info;
 

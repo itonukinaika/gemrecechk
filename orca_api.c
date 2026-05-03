@@ -43,7 +43,7 @@ const char* SafeXmlTxt(ezxml_t node, const char* child_name) {
 int DetermineInsuranceClass(const char* class_code) {
     if (!class_code || strlen(class_code) == 0) return 0;
     int num = atoi(class_code);
-    if (num == 12) return INSURANCE_KOKUHO; // 生活保護は国保に分類する
+    if (num == 12) return INSURANCE_SHAHO; // ORCAにならって、生活保護は社保に分類する
     if (num == 39) return INSURANCE_KOUKI;  
     if (strncmp(class_code, "06", 2) == 0 || strncmp(class_code, "07", 2) == 0) return INSURANCE_KOKUHO;
     if (num > 0 && num < 60) return INSURANCE_SHAHO;
@@ -494,6 +494,7 @@ unsigned __stdcall FetchOrcaDataThread(void* param) {
                                     strncpy(mi->Medication_Number, SafeXmlTxt(med_c, "Medication_Number"), 31);
                                     strncpy(mi->Unit_Code_Name, SafeXmlTxt(med_c, "Unit_Code_Name"), 31);
                                     strncpy(mi->Medication_Point, SafeXmlTxt(med_c, "Medication_Point"), 31);
+                                	strncpy(mi->Medication_Code, SafeXmlTxt(med_c, "Medication_Code"), 31); // コメント識別
                                     if (!mci->details_head) mci->details_head = mi; else last_med->next = mi;
                                     last_med = mi;
                                 }
@@ -528,26 +529,40 @@ unsigned __stdcall FetchOrcaDataThread(void* param) {
                 for (Medication_Info* mi = mci->details_head; mi; mi = mi->next) {
                     char line[512] = {0};
                     if (strlen(mi->Unit_Code_Name) > 0) {
-                        snprintf(line, sizeof(line), "%s(約%s円) %s%s\r\n", mi->Medication_Name, mi->Medication_Point, mi->Medication_Number, mi->Unit_Code_Name);
+                        // 「約」の表示に意味が無いので削除
+                        snprintf(line, sizeof(line), "%s(%s円) %s%s\r\n", mi->Medication_Name, mi->Medication_Point, mi->Medication_Number, mi->Unit_Code_Name);
                     } else {
                         char tmp_name[512]; strncpy(tmp_name, mi->Medication_Name, 511);
-                        if (strncmp(tmp_name, "【", 3) == 0) {
+                        
+                        // Medication_Code が "8" で始まる場合をコメント扱い
+                        if (strncmp(mi->Medication_Code, "8", 1) == 0) {
+                            snprintf(line, sizeof(line), "コメント：%s%s\r\n", tmp_name, mi->Medication_Name_Input_Value);
+                        } else if (strncmp(tmp_name, "【", 3) == 0) {
                             char* end = tmp_name + strlen(tmp_name) - 3;
                             if (strcmp(end, "】") == 0) {
                                 *end = '\0';
                                 snprintf(line, sizeof(line), "(%s)%s\r\n", tmp_name + 3, mi->Medication_Name_Input_Value);
                             } else { snprintf(line, sizeof(line), "(%s)%s\r\n", tmp_name, mi->Medication_Name_Input_Value); }
-                        } else { snprintf(line, sizeof(line), "(%s)%s\r\n", tmp_name, mi->Medication_Name_Input_Value); }
+                        } else { 
+                            snprintf(line, sizeof(line), "(%s)%s\r\n", tmp_name, mi->Medication_Name_Input_Value); 
+                        }
                     }
                     strcat(buffer, line);
                 }
                 int total_point = atoi(mci->Medical_Class_Point) * atoi(mci->Medical_Class_Number);
+                // 合計の下に空行を入れて、見やすくした
                 char sum_line[128]; snprintf(sum_line, sizeof(sum_line), "x %s 合計 %d 点\r\n\r\n", mci->Medical_Class_Number, total_point);
                 strcat(buffer, sum_line);
             } else {
                 for (Medication_Info* mi = mci->details_head; mi; mi = mi->next) {
                     if (strlen(mi->Medication_Name) > 0) {
-                        char line[512]; snprintf(line, sizeof(line), "%s %s x %s\r\n", mi->Medication_Name, mi->Medication_Point, mci->Medical_Class_Number);
+                        char line[512]; 
+                        // 検査や処置等のブロックでもコメントを判別
+                        if (strncmp(mi->Medication_Code, "8", 1) == 0) {
+                            snprintf(line, sizeof(line), "コメント：%s%s\r\n", mi->Medication_Name, mi->Medication_Name_Input_Value);
+                        } else {
+                            snprintf(line, sizeof(line), "%s %s x %s\r\n", mi->Medication_Name, mi->Medication_Point, mci->Medical_Class_Number);
+                        }
                         strcat(buffer, line);
                     }
                 }
