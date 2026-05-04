@@ -301,7 +301,7 @@ int LoadSettings() {
             fprintf(fp, "orcapassword=\n");
             fprintf(fp, "geminikey=\n");
             fprintf(fp, "geminimodel=gemini-pro-latest\n");
-            fprintf(fp, "gemsysprompt=あなたはベテランのレセプト点検員です。提供されるtemp_id（仮ID）、disease_list（病名一覧）、medical_info（診療行為一覧）を比較し、処方薬や実施した検査・処置に対する病名の不足、または不備を指摘し、該当するtemp_idと不備の具体的な内容（deficiency）を報告してください。不足や不備がないtemp_idについては、deficiencyにOKとだけ返答してください。\n");
+            fprintf(fp, "gemsysprompt=以下は保険診療のレセプトデータです。提供されるtemp_id(仮ID)、disease_list(病名と開始日の一覧)、medical_info(診療行為の一覧)を比較し、処方薬や実施した検査・処置に対する病名の不足、または不備を指摘し、該当するtemp_idと不備の具体的な内容(deficiency)を報告してください。不足や不備がないtemp_idについては、deficiencyにOKとだけ返答してください。\n");
             fprintf(fp, "gemsplitcase=10\n");
             fprintf(fp, "debug=no\n");
             fclose(fp);
@@ -312,7 +312,7 @@ int LoadSettings() {
     
 	// 何かの間違いでiniファイルからモデル名やシステムプロンプト名を削除した時のために、デフォルト値をセット
     strcpy(g_settings.GeminiModel, "gemini-pro-latest");
-    strcpy(g_settings.GEMSysPrompt, "あなたはベテランのレセプト点検員です。提供されるtemp_id（仮ID）、disease_list（病名一覧）、medical_info（診療行為一覧）を比較し、処方薬や実施した検査・処置に対する病名の不足、または不備を指摘し、該当するtemp_idと不備の具体的な内容（deficiency）を報告してください。不足や不備がないtemp_idについては、deficiencyにOKとだけ返答してください。");
+    strcpy(g_settings.GEMSysPrompt, "以下は保険診療のレセプトデータです。提供されるtemp_id(仮ID)、disease_list(病名と開始日の一覧)、medical_info(診療行為の一覧)を比較し、処方薬や実施した検査・処置に対する病名の不足、または不備を指摘し、該当するtemp_idと不備の具体的な内容(deficiency)を報告してください。不足や不備がないtemp_idについては、deficiencyにOKとだけ返答してください。");
     g_settings.GEMSplitCase = 10;
     g_settings.Debug = 0;
 
