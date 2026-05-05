@@ -24,7 +24,7 @@
 // メインダイアログ
 IDD_MAIN DIALOGEX 0, 0, 240, 150
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Gemini AIでレセプトを点検するツール gemrecechk v1.2"
+CAPTION "Gemini AIでレセプトを点検するツール gemrecechk v1.2.2"
 FONT 9, "MS Shell Dlg"
 BEGIN
     LTEXT           "診療年月(日):", IDC_STATIC, 25, 15, 40, 8
@@ -41,14 +41,14 @@ BEGIN
 END
 
 // 進捗ダイアログ
-IDD_PROGRESS DIALOGEX 0, 0, 200, 70
+IDD_PROGRESS DIALOGEX 0, 0, 300, 70
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION
 CAPTION "処理中"
 FONT 9, "MS Shell Dlg"
 BEGIN
-    LTEXT           "データを取得しています...", IDC_ST_STATUS, 10, 10, 180, 8
-    CONTROL         "", IDC_PROG_BAR, "msctls_progress32", WS_BORDER, 10, 25, 180, 14
-    PUSHBUTTON      "中止", IDC_BTN_ABORT, 75, 50, 50, 14
+    LTEXT           "データを取得しています...", IDC_ST_STATUS, 10, 10, 280, 8
+    CONTROL         "", IDC_PROG_BAR, "msctls_progress32", WS_BORDER, 10, 25, 280, 14
+    PUSHBUTTON      "中止", IDC_BTN_ABORT, 125, 50, 50, 14
 END
 
 // ビューワー（リサイズ可能）

@@ -296,6 +296,7 @@ unsigned __stdcall RunGeminiCheckThread(void* param) {
     }
 
     int split_case = g_settings.GEMSplitCase > 0 ? g_settings.GEMSplitCase : 10;
+    DWORD start_time = GetTickCount();
 
     for (int start_idx = 0; start_idx < args->target_count; start_idx += split_case) {
         if (WaitForSingleObject(g_hStopEvent, 0) == WAIT_OBJECT_0) goto THREAD_ABORT;
@@ -305,6 +306,18 @@ unsigned __stdcall RunGeminiCheckThread(void* param) {
 
         int percent = (int)(((float)start_idx / args->target_count) * 100);
         PostMessage(args->hProgressDlg, WM_USER_PROGRESS, percent, 0);
+
+        DWORD current_time = GetTickCount();
+        DWORD elapsed = current_time - start_time;
+        int remain_sec = 0;
+        if (start_idx > 0) {
+            float avg_time = (float)elapsed / start_idx;
+            remain_sec = (int)((avg_time * (args->target_count - start_idx)) / 1000.0f);
+        }
+        WCHAR status_text[256];
+        wsprintfW(status_text, L"Geminiでレセプトを点検しています(%d件中%d-%d件目 予想残り時間 %d分 %d秒)", 
+            args->target_count, start_idx + 1, start_idx + current_chunk_size, remain_sec / 60, remain_sec % 60);
+        SetDlgItemTextW(args->hProgressDlg, IDC_ST_STATUS, status_text);
 
         int* chunk_indices = &args->target_indices[start_idx];
         

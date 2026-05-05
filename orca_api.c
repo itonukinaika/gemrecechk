@@ -419,10 +419,24 @@ unsigned __stdcall FetchOrcaDataThread(void* param) {
     // 患者番号順に並べ替える
 	qsort(g_patients, g_patient_count, sizeof(Patient_Data), ComparePatients);
 
+    DWORD start_time = GetTickCount();
+
     for (int i = 0; i < g_patient_count; i++) {
         if (WaitForSingleObject(g_hStopEvent, 0) == WAIT_OBJECT_0) goto THREAD_ABORT;
         Patient_Data* p = &g_patients[i];
         PostMessage(args->hProgressDlg, WM_USER_PROGRESS, (int)(((float)i / g_patient_count) * 100), 0);
+
+        DWORD current_time = GetTickCount();
+        DWORD elapsed = current_time - start_time;
+        int remain_sec = 0;
+        if (i > 0) {
+            float avg_time = (float)elapsed / i;
+            remain_sec = (int)((avg_time * (g_patient_count - i)) / 1000.0f);
+        }
+        WCHAR status_text[256];
+        wsprintfW(status_text, L"Web ORCAからデータを取得しています(%d件中%d件目 予想残り時間 %d分 %d秒)", 
+            g_patient_count, i + 1, remain_sec / 60, remain_sec % 60);
+        SetDlgItemTextW(args->hProgressDlg, IDC_ST_STATUS, status_text);
 
         // 各患者番号に対して、その月の受付一覧(Perform_Date, Department_Code, Sequential_Numberの組の一覧)を所得する
     	snprintf(req_xml, sizeof(req_xml),
