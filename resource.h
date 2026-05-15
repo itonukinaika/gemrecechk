@@ -66,6 +66,7 @@
 #define IDC_ED_SPLIT_CASE   1307
 #define IDC_BTN_EDIT_USERP  1308
 #define IDC_CHK_DEBUG       1309
+#define IDC_CHK_PRIORITY    1310
 
 // License Dialog
 #define IDC_LBL_LICENSE_TITLE 1401

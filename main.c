@@ -304,6 +304,7 @@ int LoadSettings() {
             fprintf(fp, "gemsysprompt=以下は保険診療のレセプトデータです。提供されるtemp_id(仮ID)、disease_list(病名と開始日の一覧)、medical_info(診療行為の一覧)を比較し、処方薬や実施した検査・処置に対する病名の不足、または不備を指摘し、該当するtemp_idと不備の具体的な内容(deficiency)を報告してください。不足や不備がないtemp_idについては、deficiencyにOKとだけ返答してください。\n");
             fprintf(fp, "gemsplitcase=10\n");
             fprintf(fp, "debug=no\n");
+            fprintf(fp, "priority=no\n");
             fclose(fp);
         }
     } else {
@@ -315,6 +316,7 @@ int LoadSettings() {
     strcpy(g_settings.GEMSysPrompt, "以下は保険診療のレセプトデータです。提供されるtemp_id(仮ID)、disease_list(病名と開始日の一覧)、medical_info(診療行為の一覧)を比較し、処方薬や実施した検査・処置に対する病名の不足、または不備を指摘し、該当するtemp_idと不備の具体的な内容(deficiency)を報告してください。不足や不備がないtemp_idについては、deficiencyにOKとだけ返答してください。");
     g_settings.GEMSplitCase = 10;
     g_settings.Debug = 0;
+    g_settings.Priority = 0;
 
     fp = fopen("gemrecechk.ini", "r");
     if (fp) {
@@ -337,6 +339,7 @@ int LoadSettings() {
             else if (strcmp(key, "gemsysprompt") == 0) strcpy(g_settings.GEMSysPrompt, val);
             else if (strcmp(key, "gemsplitcase") == 0) g_settings.GEMSplitCase = atoi(val);
             else if (strcmp(key, "debug") == 0) g_settings.Debug = (strcmp(val, "yes") == 0) ? 1 : 0;
+            else if (strcmp(key, "priority") == 0) g_settings.Priority = (strcmp(val, "yes") == 0) ? 1 : 0;
         }
         fclose(fp);
     }
@@ -618,6 +621,7 @@ INT_PTR CALLBACK ConfigDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             SetDlgItemTextW(hwnd, IDC_ED_SYS_PROMPT, wSysP);
             SetDlgItemInt(hwnd, IDC_ED_SPLIT_CASE, g_settings.GEMSplitCase, FALSE);
             CheckDlgButton(hwnd, IDC_CHK_DEBUG, g_settings.Debug ? BST_CHECKED : BST_UNCHECKED);
+            CheckDlgButton(hwnd, IDC_CHK_PRIORITY, g_settings.Priority ? BST_CHECKED : BST_UNCHECKED);
             
             free(wAddr); free(wUser); free(wPass); free(wKey); free(wModel); free(wSysP);
             return TRUE;
@@ -647,6 +651,7 @@ INT_PTR CALLBACK ConfigDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 
                 g_settings.GEMSplitCase = GetDlgItemInt(hwnd, IDC_ED_SPLIT_CASE, NULL, FALSE);
                 g_settings.Debug = (IsDlgButtonChecked(hwnd, IDC_CHK_DEBUG) == BST_CHECKED) ? 1 : 0;
+                g_settings.Priority = (IsDlgButtonChecked(hwnd, IDC_CHK_PRIORITY) == BST_CHECKED) ? 1 : 0;
                 
                 FILE* fp = fopen("gemrecechk.ini", "w");
                 if (fp) {
@@ -658,6 +663,7 @@ INT_PTR CALLBACK ConfigDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                     fprintf(fp, "gemsysprompt=%s\n", g_settings.GEMSysPrompt);
                     fprintf(fp, "gemsplitcase=%d\n", g_settings.GEMSplitCase);
                     fprintf(fp, "debug=%s\n", g_settings.Debug ? "yes" : "no");
+                    fprintf(fp, "priority=%s\n", g_settings.Priority ? "yes" : "no");
                     fclose(fp);
                 }
                 

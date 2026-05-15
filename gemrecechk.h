@@ -90,6 +90,7 @@ typedef struct App_Settings {
     char GEMSysPrompt[MAX_SETTING_VAL * 2];
     int GEMSplitCase;
     int Debug;
+    int Priority;
     char GEMUserPrompt[MAX_SETTING_VAL * 32];
 } App_Settings;
 
